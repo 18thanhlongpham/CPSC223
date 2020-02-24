@@ -6,6 +6,11 @@
 //  Copyright © 2020 William McCarthy. All rights reserved.
 //
 
+// did 4.3 and 4.4
+// did 4.5 in class
+// couldn't do 4.6
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
