@@ -30,20 +30,24 @@ struct tree {
 tnode* tnode_create(const char* word);
 tree* tree_create(void);
 
+tree* tree_from_console(void);
+tree* tree_from_file(int argc, const char* argv[]);
+
 void tree_delete(tree* t);
 void tree_clear(tree* t);
 
 bool tree_empty(tree* t);
 size_t tree_size(tree* t);
 
-tnode* tree_add(tree* t, const char* word);
+tnode* tree_add(tree* t, char* word);
 
 void tree_print(tree* t);    // INORDER-printing
 
 void tree_print_preorder(tree* t);
 void tree_print_postorder(tree* t);
 void tree_print_levelorder(tree* t);
+void tree_print_reverseorder(tree* t);
 
-void tree_test(void);
+void tree_test(tree* t);
 
 #endif /* tree_h */
