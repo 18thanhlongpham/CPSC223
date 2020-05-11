@@ -69,6 +69,7 @@ hash_node* hash_install(const char* name, const char* defn) {
 }
 
 void hash_deletenode(hash_node* p) {
+  if (p == NULL) { return; }
   free((void*)p->name);
   free(p->defn);
   free(p);
@@ -78,6 +79,9 @@ void hash_clear() {
   printf("\nclearing hash table...   ");
   for (int i = 0; i < HASHSIZE; ++i) {
     hash_node* p = hashtab[i];
+    if (i == 72) {
+      printf("72\n");
+    }
     while (p != NULL) {
       hash_node* q = p;
       p = p->next;
@@ -91,24 +95,22 @@ void hash_clear() {
 void hash_undef(const char* name) {
   if (name == NULL) { return; }
   
-  hash_node* np1, np2;
+  hash_node* np;
+  unsigned hash_idx;
   if ((np = hash_lookup(name)) == NULL) { return; }
-    for (np1 = np2 = hashtab[hash(name)]; np1 != NULL;
-         np2 = np1, np1 = np1->next ) {
-        if (strcmp(name, np1->name) == 0) {
-            if (np1 == np2)
-                hashtab[hash(name)] = np1->next;
-            else
-                np2->next = np1->next;
-				free(np1->name);
-				free(np1->defn);
-				free(np1);
-
-            return 0;
-        }
-    }
-
-    return 1;
+  
+  hash_idx = hash(name);
+  hash_node* p = np;
+  hash_node* prev = np;
+  while (p != np) {
+    prev = p;
+    p = p->next;
+  }
+  prev->next = p->next;
+  hash_deletenode(p);
+  if (hashtab[hash_idx]->next == NULL) {
+    hashtab[hash_idx] = NULL;
+  }
 }
 
 const char* yesorno(bool cond) { return cond ? "YES" : "no"; }
@@ -116,7 +118,20 @@ const char* yesorno(bool cond) { return cond ? "YES" : "no"; }
 void print_defn(const char* s) {
   hash_node* p = hash_lookup(s);
   printf("'%s': ", s);
-  printf("%s\n", p ? p->defn : "not found");
+  printf("%s ", p ? p->defn : "not found");
+  printf(" ---> %p\n",  p ? p->next : NULL);
+}
+
+void hash_print(void) {
+  for (int i = 0; i < HASHSIZE; ++i) {
+    printf("%3d...\n", i);
+    hash_node* np = hashtab[i];
+    while (np != NULL) {
+      printf("\t");
+      print_defn(np->name);
+      np = np->next;
+    }
+  }
 }
 
 void test_hash_table() {
@@ -135,29 +150,27 @@ void test_hash_table() {
   print_defn("amoeba");
   print_defn("paramecium");
   print_defn("virus");
-  
+
+  hash_print();
   
   printf("\nredefining cat...\n");
   printf("redefining virus...\n");
+
   hash_install("cat", "animal that likes fish and mice and birds");
   hash_install("virus", "VERY EXPENSIVE pain in the neck");
+
   print_defn("cat");
   print_defn("virus");
-  
-  hash_clear();
-  printf("\n%s\n", "// ----------------END OF TESTING HASH_TABLE ---------------------");
-}
+  hash_print();
 
-void hash_print(void) {
-  for (int i = 0; i < HASHSIZE; ++i) {
-    printf("%d...\n", i);
-    hash_node* np = hashtab[i];
-    while (np != NULL) {
-      printf("\t");
-      print_defn(np->name);
-      np = np->next;
-    }
-  }
+  printf("undefining virus...\n");
+  hash_undef("virus");
+  print_defn("virus");
+  hash_print();
+
+  hash_clear();
+  hash_print();
+  printf("\n%s\n", "// ----------------END OF TESTING HASH_TABLE ---------------------");
 }
 
 void add_word_defn(const char* name, const char* defn, int* size) {
@@ -201,7 +214,9 @@ void hash_test(int argc, const char* argv[]) {
 
 //-----------------------------------------------------------
 int main(int argc, const char * argv[]) {
-  hash_test(argc, argv);
+  test_hash_table();
+  
+//  hash_test(argc, argv);
   
   
   return 0;
