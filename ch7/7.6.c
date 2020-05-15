@@ -41,7 +41,6 @@ int main(int argc, char *argv[]) {
             break;
     }
 
-    /* If they both ended with NULL then they finished at the same time. */
     if (fr1 == NULL && fr2 == NULL) {
         printf("files match\n");
         exit(0);
@@ -52,7 +51,6 @@ int main(int argc, char *argv[]) {
                (fr1 == NULL) ? fn1 : fn2,
                (fr1 == NULL) ? fn2 : fn1);
     } else {
-        /* If anything else caused the loop to end, then there was a mismatch. */
         printf("mismatch on line %ld:\n%s:\n%s\n%s:\n%s\n",
                line, fn1, line1, fn2, line2);
     }
