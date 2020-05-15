@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     char *prog = argv[0];
     int linecount = 0;
     int num=1;
-    if (argc == 1) /* no args; copy standard input */
+    if (argc == 1) 
     {
         fprintf(stderr, "No files given\n");
         exit(0);
@@ -36,8 +36,6 @@ int main(int argc, char *argv[]) {
     }
     exit(0);
 }
-
-/* filecopy: copy file ifp to file ofp */
 
 void printpages(FILE *ifp, FILE *ofp)
 {
