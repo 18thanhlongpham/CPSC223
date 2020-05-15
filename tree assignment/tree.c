@@ -15,6 +15,22 @@
 #include "tree.h"
 #include "utils.h"
 
+typedef struct inode inode;
+struct inode{
+	int line_num;
+	inode* next;
+};
+
+typedef struct tnode tnode;
+struct tnode{
+	const char* word;
+	int count;
+	inode* line_node;
+	tnode* left;
+	tnode* right;
+};
+
+typedef struct tree tree;
 
 //-------------------------------------------------
 tnode* tnode_create(const char* word) {
@@ -69,16 +85,17 @@ bool tree_empty(tree* t)  { return t->size == 0; }
 size_t tree_size(tree* t) { return t->size; }
 
 //====================================================================
-static tnode* tree_addnode(tree* t, tnode** p, const char* word) {
+static tnode* tree_addnode(tree* t, tnode** p, const char* word, int line_num) {
   int compare;
   
   if (*p == NULL) {
-    *p = tnode_create(word);
+    *p = tnode_create(word, line_num);
   } else if ((compare = strcmp(word, (*p)->word)) == 0) {
     (*p)->count++;
-  } else if (compare < 0) { tree_addnode(t, &(*p)->left, word);
+	inode_append((*p)->line_node, line_num);
+  } else if (compare < 0) { tree_addnode(t, &(*p)->left, word, line_num);
   } else {
-    tree_addnode(t, &(*p)->right, word);
+    tree_addnode(t, &(*p)->right, word, line_num);
   }
 
   return *p;
@@ -123,11 +140,20 @@ static void tree_printme(tree* t, tnode* p) {
 
 //====================================================================
 static void tree_printnodes(tree* t, tnode* p) {
-  if (p == NULL) { return; }
-  
-  tree_printnodes(t, p->left);
-  tree_printme(t, p);
-  tree_printnodes(t, p->right);
+	static char prev[BUFSIZE];
+	static bool firsttime= true;
+	if(firsttime){
+		memset(prev, 0, sizeof(prev));
+		strcpy(prev, p->word);
+		firsttime= false;
+	}
+	
+	int compare= strncmp(prev, p->word, 6);
+	if(compare!=0){
+		print("\n");
+	}
+	strncpy(prev, p->word);
+	printf("%s ", p->word);
 }
 
 //====================================================================
@@ -203,48 +229,34 @@ tree* tree_from_file(int argc, const char* argv[]) {
     exit(1);
   }
 
-  char buf[BUFSIZ];
-  char delims[] = " \n";
-  int size = 0;
-  memset(buf, 0, sizeof(buf));
-
-  tree* t = tree_create();
-  while (fgets(buf, BUFSIZ, fin)) {
-    char* word = strtok(buf, delims);
-    tree_add(t, word);
-
-    while ((word = strtok(NULL, delims)) != NULL) {
-      tree_add(t, word);
-    }
-  }
-  printf("%d words added...\n", size);
-  fclose(fin);
+  tree* t= tree_from_stream(fgets, fin);
 
   return t;
 }
+
+static tnode* treefreq_addnode(tree* t, tnode** pp, tnode* p){
+	int compare;
+	
+	if(*pp==NULL){
+		*pp=p;
+		(*pp)->left= NULL;
+		(*PP)->right= NULL;
+	} else if((compare= strcmp((*pp)->word, p->word))< 0){
+		treefreq_addnode(t, &(*pp)->left, p);
+	} else if(compare> 0){
+		treefreq_addnode(t, &(*pp)->right, p);
+	}
+	return *pp;
+}
+	
 
 
 //====================================================================
 int main(int argc, const char* argv[]) {
   tree* t = tree_from_file(argc, argv);
-  if (t != NULL) { tree_test(t);  tree_delete(t);  return 0; }
-  
-  char buf[BUFSIZ];
-  char delims[] = " .,;?!\'\"()\n";
-  int size = 0;
-  memset(buf, 0, sizeof(buf));
-  
-
-  t = tree_create();
-  while (fgets(buf, BUFSIZ, stdin)) {
-    char* word = strtok(buf, delims);
-    tree_add(t, word);
-
-    while ((word = strtok(NULL, delims)) != NULL) {
-      tree_add(t, word);
-    }
+  if(t==NULL){
+	  t= tree_from_stream(fgets, stdin);
   }
-  printf("%d words added...\n", size);
 
   tree_test(t);
   tree_delete(t);
