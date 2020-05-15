@@ -78,10 +78,10 @@ struct nlist *undef(char *name) {
 int main(int argc, char *argv[])
 {
     struct nlist *table[4] = {
-            (install("key", "value")),
-            (install("key1", "value1")),
-            (install("key2", "value2")),
-            (install("key3", "value3"))
+            (install("name", "definition")),
+            (install("name1", "definition1")),
+            (install("name2", "definition2")),
+            (install("name3", "definition3"))
     };
 
     int i;
@@ -90,21 +90,21 @@ int main(int argc, char *argv[])
         printf("%s->%s\n", table[i]->name, table[i]->defn);
     }
 
-    undef("key");
-    undef("key3");
+    undef("name");
+    undef("name3");
 
     struct nlist *result;
 
-    char *keys[4] = {
-            "key",
-            "key1",
-            "key2",
-            "key3"
+    char *names[4] = {
+            "name",
+            "name1",
+            "name2",
+            "name3"
     };
 
     for (i = 0; i < 4; i++) {
-        if ((result = lookup(keys[i])) == NULL) {
-            printf("key not found\n");
+        if ((result = lookup(names[i])) == NULL) {
+            printf("name not found\n");
         } else {
             printf("%s->%s\n", result->name, result->defn);
         }
