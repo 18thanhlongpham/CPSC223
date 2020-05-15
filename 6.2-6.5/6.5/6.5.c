@@ -1,6 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+#define HASHSIZE 101
 
 struct nlist {
     struct nlist *next;
@@ -8,14 +9,12 @@ struct nlist {
     char *defn;
 };
 
-#define HASHSIZE 101
-
-static struct nlist *hashtab[HASHSIZE]; /* pointer table */
+static struct nlist *hashtab[HASHSIZE]; /
 
 unsigned hash(char *s)
 {
     unsigned hashval;
-
+    
     for(hashval = 0; *s != '\0'; s++)
         hashval = *s + 31 * hashval;
 
@@ -28,8 +27,8 @@ struct nlist *lookup(char *s)
 
     for (np = hashtab[hash(s)]; np != NULL; np = np->next)
         if (strcmp(s, np->name) == 0)
-            return np;  /* found */
-    return NULL;        /* not found */
+            return np;
+    return NULL;     
 }
 
 struct nlist *lookup(char *);
@@ -47,8 +46,8 @@ struct nlist *install(char *name, char *defn)
         hashval = hash(name);
         np->next = hashtab[hashval];
         hashtab[hashval] = np;
-    } else  /* already there */
-        free((void *) np->defn);    /* free the previous defn */
+    } else  
+        free((void *) np->defn);   
 
     if ((np->defn = strdup(defn)) == NULL)
         return NULL;
@@ -61,7 +60,7 @@ struct nlist *undef(char *name) {
 
     found = lookup(name);
 
-    if (found == NULL) /* not found and nothing to do */
+    if (found == NULL) 
         return NULL;
     else {
         if (found->next != NULL) {
@@ -77,8 +76,7 @@ struct nlist *undef(char *name) {
 
 int main(int argc, char *argv[])
 {
-    struct nlist *table[4] = {
-            (install("name", "definition")),
+    struct nlist *table[3] = {
             (install("name1", "definition1")),
             (install("name2", "definition2")),
             (install("name3", "definition3"))
@@ -86,17 +84,16 @@ int main(int argc, char *argv[])
 
     int i;
 
-    for (i=0; i < 4; i++) {
+    for (i=0; i < 3; i++) {
         printf("%s->%s\n", table[i]->name, table[i]->defn);
     }
 
-    undef("name");
+    undef("name1");
     undef("name3");
 
     struct nlist *result;
 
-    char *names[4] = {
-            "name",
+    char *names[3] = {
             "name1",
             "name2",
             "name3"
