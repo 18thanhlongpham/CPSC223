@@ -9,7 +9,7 @@ struct nlist {
     char *defn;
 };
 
-static struct nlist *hashtab[HASHSIZE]; /
+static struct nlist *hashtab[HASHSIZE]; 
 
 unsigned hash(char *s)
 {
