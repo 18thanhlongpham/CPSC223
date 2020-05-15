@@ -4,13 +4,14 @@
 #include <string.h>
 
 #define MAXWORD 100
+#define BUFSIZE 100
 
-struct tnode { /* the tree node */
-    char *word; /* points to the test */
-    struct tnode *left; /* left child */
-    struct tnode *right; /* right child */
-    int count; /* count of line numbers */
-    long lineNumbers[]; /* line numbers */
+struct tnode { 
+    char *word; 
+    struct tnode *left; 
+    struct tnode *right; 
+    int count; 
+    long lineNumbers[]; 
 };
 
 int noise(char *s);
@@ -82,8 +83,8 @@ int comp(const void *s1, const void *s2);
 struct tnode *addtree(struct tnode *p, char *w, long lineNumber) {
     int i, cond;
 
-    if (p == NULL) { /* a new word has arrived */
-        p = talloc(); /* make a new node */
+    if (p == NULL) { 
+        p = talloc(); 
         p->word = _strdup(w);
         p->count = 1;
         p->lineNumbers[p->count - 1] = lineNumber;
@@ -96,9 +97,9 @@ struct tnode *addtree(struct tnode *p, char *w, long lineNumber) {
                     return p;
             p->lineNumbers[p->count] = lineNumber;
             p->count += 1;
-        } else if (cond < 0) /* less than the left subtree */
+        } else if (cond < 0) 
             p->left = addtree(p->left, w, lineNumber);
-        else /* greater than the right subtree */
+        else 
             p->right = addtree(p->right, w, lineNumber);
     }
     return p;
@@ -123,10 +124,10 @@ struct tnode *talloc(void) {
     return (struct tnode *) malloc(sizeof(struct tnode));
 }
 
-char *_strdup(char *s) { /* make a duplicate of s */
+char *_strdup(char *s) { 
     char *p;
 
-    p = (char *) malloc(strlen(s) + 1); /* +1 for '\0' */
+    p = (char *) malloc(strlen(s) + 1);
     if (p != NULL)
         strcpy(p, s);
     return p;
@@ -160,16 +161,14 @@ int getword(char *word, int lim) {
     return word[0];
 }
 
-#define BUFSIZE 100
+char buf[BUFSIZE]; 
+int bufp = 0; 
 
-char buf[BUFSIZE]; /* buffer for ungetch */
-int bufp = 0; /* next free position in buf */
-
-int getch(void) { /* get a (possibly pushed back) character */
+int getch(void) { 
     return (bufp > 0) ? buf[--bufp] : getchar();
 }
 
-void ungetch(int c) { /* push character back on input */
+void ungetch(int c) { 
     if (bufp >= BUFSIZE)
         printf("ungetch: too many characters\n");
     else
